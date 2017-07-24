@@ -16,6 +16,9 @@ module Datadog
       # Header used to transmit the parent ID.
       HTTP_HEADER_PARENT_ID = 'HTTP_X_DATADOG_PARENT_ID'.freeze
 
+      # Header used to transmit the request start time.
+      HTTP_HEADER_REQUEST_START = 'HTTP_X_REQUEST_START'.freeze
+
       # TraceMiddleware ensures that the Rack Request is properly traced
       # from the beginning to the end. The middleware adds the request span
       # in the Rack environment so that it can be retrieved by the underlying
@@ -55,6 +58,21 @@ module Datadog
           )
         end
 
+        def parse_request_start_header(request_start_header)
+          return nil if request_start_header.nil?
+          request_start = request_start_header.to_i
+          if request_start.zero?
+            Datadog::Tracer.log.debug("invalid request start header: #{request_start_header}")
+            return nil
+          end
+          queue_time = Time.now.to_i - request_start
+          if queue_time < 0
+            Datadog::Tracer.log.debug("request start header out of range: #{request_start_header}")
+            return nil
+          end
+          queue_time
+        end
+
         # rubocop:disable Metrics/MethodLength
         def call(env)
           # configure the Rack middleware once
@@ -82,6 +100,9 @@ module Datadog
             request_span.trace_id = trace_id unless trace_id.nil?
             request_span.parent_id = parent_id unless parent_id.nil?
           end
+
+          request_queueing = parse_request_start_header(env[Datadog::Contrib::Rack::HTTP_HEADER_REQUEST_START])
+          request_span.set_tag('queueing', request_queueing) unless request_queueing.nil?
 
           env[:datadog_rack_request_span] = request_span
 
