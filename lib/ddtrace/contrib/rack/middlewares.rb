@@ -59,18 +59,9 @@ module Datadog
         end
 
         def parse_request_start_header(request_start_header)
-          return nil if request_start_header.nil?
-          request_start = request_start_header.to_i
-          if request_start.zero?
-            Datadog::Tracer.log.debug("invalid request start header: #{request_start_header}")
-            return nil
-          end
-          queue_time = Time.now.to_i - request_start
-          if queue_time < 0
-            Datadog::Tracer.log.debug("request start header out of range: #{request_start_header}")
-            return nil
-          end
-          queue_time
+          return Time.now if request_start_header.nil?
+          # Expect the REQUEST_START header in the formate `t=%s.%q`
+          Time.strptime(request_start_header, 't=%s.%L')
         end
 
         # rubocop:disable Metrics/MethodLength
@@ -88,6 +79,12 @@ module Datadog
           # we must ensure that the span `resource` is set later
           request_span = @tracer.trace('rack.request', trace_options)
 
+          # Log a span for time spent in request queue
+          request_queued = parse_request_start_header(env[Datadog::Contrib::Rack::HTTP_HEADER_REQUEST_START])
+          queue_span = @tracer.start_span('rack.queue', trace_options.merge(start_time: request_queued, resource: 'Request Queue'))
+
+          queue_span.finish()
+
           if @distributed_tracing_enabled
             # Merge distributed trace ids if present
             #
@@ -100,9 +97,6 @@ module Datadog
             request_span.trace_id = trace_id unless trace_id.nil?
             request_span.parent_id = parent_id unless parent_id.nil?
           end
-
-          request_queueing = parse_request_start_header(env[Datadog::Contrib::Rack::HTTP_HEADER_REQUEST_START])
-          request_span.set_tag('queueing', request_queueing) unless request_queueing.nil?
 
           env[:datadog_rack_request_span] = request_span
 
