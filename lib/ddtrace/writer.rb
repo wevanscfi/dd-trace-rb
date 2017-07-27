@@ -8,8 +8,8 @@ module Datadog
   class Writer
     attr_reader :transport
 
-    HOSTNAME = 'localhost'.freeze
-    PORT = '8126'.freeze
+    HOSTNAME = (ENV['DD_TRACE_HOST'] || 'localhost').freeze
+    PORT = (ENV['DD_TRACE_PORT'] || '8126').freeze
 
     def initialize(options = {})
       # writer and transport parameters

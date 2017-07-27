@@ -52,10 +52,10 @@ if defined?(Rails::VERSION)
         # functionalities.
         initializer :datadog_config, before: :build_middleware_stack do |app|
           app.config.middleware.insert_before(
-            0, Datadog::Contrib::Queue::TraceMiddleware, options
+            0, Datadog::Contrib::Rack::TraceMiddleware, options
           )
           app.config.middleware.insert_before(
-            1, Datadog::Contrib::Rack::TraceMiddleware, options
+            0, Datadog::Contrib::Queue::TraceMiddleware, options
           )
         end
       end
