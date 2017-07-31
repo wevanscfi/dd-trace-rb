@@ -66,10 +66,10 @@ module Datadog
         #
         # @return [Time] request queued at time, or now
         def parse_request_start_header(request_start_header)
-          return Time.now if request_start_header.nil?
-          Time.strptime(request_start_header, 't=%s.%L')
+          return Time.now.utc if request_start_header.nil?
+          Time.strptime(request_start_header, 't=%s.%L').utc
         rescue
-          Time.now
+          Time.now.utc
         end
 
         # Method called by all middlewares on the next middleware in the chain
