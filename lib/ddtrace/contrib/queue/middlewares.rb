@@ -27,7 +27,6 @@ module Datadog
 
         # Initialize
         #
-        # @author wevanscfi
         # @since 0.7.3
         #
         # @param [Middleware] app
@@ -61,7 +60,6 @@ module Datadog
 
         # Parse the request queued at time from the header
         #
-        # @author wevanscfi
         # @since 0.7.3
         #
         # @param [String] request_start_header A string in the format `t=%s.%L`
@@ -76,7 +74,6 @@ module Datadog
 
         # Method called by all middlewares on the next middleware in the chain
         #
-        # @author wevasncfi
         # @since 0.7.3
         #
         # @params [Hash] env
@@ -92,12 +89,12 @@ module Datadog
           # Useful for tracking time spent in unicorn or puma before being passed to
           # a child worker
           request_queued = parse_request_start_header(env[Datadog::Contrib::Queue::HTTP_HEADER_REQUEST_START])
-          queue_span = @tracer.trace('request.queue',
-            service: @service,
-            span_type: Datadog::Ext::HTTP::TYPE,
-            start_time: request_queued,
-            resource: 'Request Queue'
-          ).finish()
+          @tracer.trace('request.queue',
+                        service: @service,
+                        span_type: Datadog::Ext::HTTP::TYPE,
+                        start_time: request_queued,
+                        resource: 'Request Queue'
+                       ).finish()
 
           # call down the middleware stack
           status, headers, response = @app.call(env)

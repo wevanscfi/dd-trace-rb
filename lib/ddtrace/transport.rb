@@ -11,7 +11,7 @@ module Datadog
     attr_accessor :hostname, :port
     attr_reader :traces_endpoint, :services_endpoint
 
-    ACTIVE = ENV['DD_TRACE_ACTIVE'].present?
+    ACTIVE = true
 
     # seconds before the transport timeout
     TIMEOUT = 1

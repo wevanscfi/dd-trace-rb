@@ -13,9 +13,9 @@ module Datadog
         module_function
 
         # patch applies our patch if needed
-         def patch
+        def patch
           if !@patched && (defined?(::Typhoeus::VERSION) && \
-                           Gem::Version.new(::Typhoeus::VERSION) >= Gem::Version.new('0.7.0'))
+              Gem::Version.new(::Typhoeus::VERSION) >= Gem::Version.new('0.7.0'))
             begin
               # do not require these by default, but only when actually patching
               require 'ddtrace/monkey'
@@ -48,15 +48,37 @@ module Datadog
               end
               initialize_wihtout_datadog(*args)
             end
+
+            def method_info
+              case options[:method]
+              when :head
+                return 'HEAD'
+              when :post
+                return 'POST'
+              when :put
+                return 'PUT'
+              when :delete
+                return 'DELETE'
+              when :connect
+                return 'CONNECT'
+              when :options
+                return 'OPTIONS'
+              when :trace
+                return 'TRACE'
+              when :PATCH
+                return 'PATCH'
+              end
+              return 'GET'
+            end
           end
 
           ::Typhoeus.before do |request|
             pin = ::Datadog::Pin.get_from(request)
-            span = pin.tracer.trace('web_external',
-              service: pin.service,
-              span_type: ::Datadog::Ext::Typhoeus::TYPE,
-              resource: request.options[:method],
-            )
+            span = pin.tracer.trace('http.request',
+                                    service: pin.service,
+                                    span_type: ::Datadog::Ext::Typhoeus::TYPE,
+                                    resource: request.method_info,
+                                   )
             callback = Proc.new do
               ::Datadog::Contrib::Typhoeus::Tags.set_request_tags(request, span)
               span.finish()
