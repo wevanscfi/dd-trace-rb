@@ -7,6 +7,7 @@ require 'ddtrace/contrib/active_record/patcher'
 require 'ddtrace/contrib/elasticsearch/patcher'
 require 'ddtrace/contrib/grape/patcher'
 require 'ddtrace/contrib/redis/patcher'
+require 'ddtrace/contrib/typhoeus/patcher'
 require 'ddtrace/contrib/http/patcher'
 
 module Datadog
@@ -16,6 +17,7 @@ module Datadog
     @autopatch_modules = {
       elasticsearch: true,
       http: true,
+      typhoeus: true,
       redis: true,
       grape: true,
       active_record: false
@@ -29,6 +31,7 @@ module Datadog
                   http: Datadog::Contrib::HTTP::Patcher,
                   redis: Datadog::Contrib::Redis::Patcher,
                   grape: Datadog::Contrib::Grape::Patcher,
+                  typhoeus: Datadog::Contrib::Typhoeus::Patcher,
                   active_record: Datadog::Contrib::ActiveRecord::Patcher }
     @mutex = Mutex.new
 

@@ -44,7 +44,7 @@ namespace :test do
     t.test_files = FileList['test/contrib/rails/**/*active_job*_test.rb']
   end
 
-  [:elasticsearch, :http, :redis, :sinatra, :sidekiq, :rack, :grape].each do |contrib|
+  [:elasticsearch, :http, :typhoeus, :redis, :sinatra, :sidekiq, :rack, :queue, :grape].each do |contrib|
     Rake::TestTask.new(contrib) do |t|
       t.libs << %w[test lib]
       t.test_files = FileList["test/contrib/#{contrib}/*_test.rb"]

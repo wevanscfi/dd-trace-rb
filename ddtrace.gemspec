@@ -37,5 +37,8 @@ EOS
   spec.add_development_dependency('rubocop', '~> 0.47') if RUBY_VERSION >= '2.1.0'
   spec.add_development_dependency 'minitest', '= 5.10.1'
   spec.add_development_dependency 'appraisal', '~> 2.1'
+  spec.add_development_dependency 'typhoeus', '~> 0.7'
+  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'timecop'
   spec.add_development_dependency 'yard', '~> 0.9'
 end
