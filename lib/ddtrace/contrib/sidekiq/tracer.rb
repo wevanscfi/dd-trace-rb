@@ -58,13 +58,12 @@ module Datadog
           service = sidekiq_service(resource_worker(resource))
           set_service_info(service)
 
-          queued_time = Time.strptime(job['enqueued_at'].to_s, '%s.%L')
-
-          @tracer.trace('sidekiq.queue',
-                        service: service,
-                        span_type: 'job',
-                        start_time: queued_time) do |span|
-            span.resource = job['queue']
+          if job['enqueued_at']
+            queued_time = Time.strptime(job['enqueued_at'].to_s, '%s.%L').utc rescue Time.now.utc
+            @tracer.trace('sidekiq.queue', service: service, span_type: 'queue', start_time: queued_time) do |span|
+              span.resource = nil
+              span.set_tag('sidekiq.queue.queue', job['queue'])
+            end
           end
 
           @tracer.trace('sidekiq.job', service: service, span_type: 'job') do |span|

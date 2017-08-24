@@ -160,6 +160,17 @@ module Datadog
     #   parent2 = tracer.trace('parent2')   # has no parent span
     #   parent2.finish()
     #
+    #@overload trace(name, options = {})
+    # @param [String] name
+    # @param [Hash] options
+    #
+    # @return [Datadog::Span]
+    #
+    #@overload trace(name, options = {})
+    # @param [String] name
+    # @param [Hash] options
+    #
+    # @yield [Datadog::Span]
     def trace(name, options = {})
       span = Span.new(self, name, options)
 

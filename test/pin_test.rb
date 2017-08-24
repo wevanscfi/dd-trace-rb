@@ -2,6 +2,8 @@ require 'helper'
 require 'ddtrace'
 require 'ddtrace/pin'
 require 'ddtrace/tracer'
+require 'benchmark'
+require 'pry'
 
 class PinTest < Minitest::Test
   def test_pin_onto
@@ -15,6 +17,8 @@ class PinTest < Minitest::Test
     got = Datadog::Pin.get_from(a)
     assert_equal('abc', got.service)
     assert_equal('anapp', got.app)
+
+    assert_includes(got.tracer.services, 'abc', 'Service info for pin not set')
   end
 
   def test_pin_get_from
@@ -47,5 +51,19 @@ class PinTest < Minitest::Test
   def test_enabled
     pin = Datadog::Pin.new('abc')
     assert_equal(true, pin.enabled?)
+  end
+
+  def test_trace
+    writer = FauxWriter.new()
+    tracer = Datadog::Tracer.new(writer: writer)
+    pin = Datadog::Pin.new('abc', tracer: tracer)
+    pin.trace('resource').finish
+    pin.tracer.trace('trace_resource').finish
+    spans = writer.spans()
+    assert_equal(2, spans.length)
+    span = spans[0]
+    assert_equal('abc', span.service, 'Tracing from a pin, should use the pins service')
+    span = spans[1]
+    assert_equal('rake_test_loader', span.service, 'Tracing from the tracer, should use the default service')
   end
 end

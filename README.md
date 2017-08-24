@@ -65,6 +65,26 @@ to trace requests to the home page:
     end
 ```
 
+### Quickstart (method tracing)
+
+If you are looking for a quick and easy way to trace multiple
+methods, or need to trace methods within base classes you are
+extending; the module Datadog::MethodTracer contains the helper
+function `trace_method` for quickly wrapping method execution in
+a new trace span. The resource will be "MyClass#my_method" 
+
+```
+class MyClass
+  include Datadog::MethodTracer
+  datadog_pin_options 'my-service', {app: 'my-app', tags: {}, app_type: 'method-tracer'}
+
+  def my_method
+    # do stuff
+  end
+  trace_method :my_method
+end
+```
+
 ### Quickstart (integration)
 
 Instead of doing the above manually, whenever an integration is available,
