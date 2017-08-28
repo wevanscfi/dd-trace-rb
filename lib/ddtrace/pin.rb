@@ -18,13 +18,40 @@ module Datadog
     attr_accessor :tracer
 
     # [ruby19] named parameters would be more idiomatic here, but would break backward compatibility
-    def initialize(service, options = { app: nil, tags: nil, app_type: nil, tracer: nil })
+    def initialize(service = nil, options = { app: nil, tags: nil, app_type: nil, tracer: nil })
       @service = service
       @app = options[:app]
       @tags = options[:tags]
       @app_type = options[:app_type]
       @name = nil # this would rarely be overriden as it's really span-specific
       @tracer = options[:tracer] || Datadog.tracer
+      @tracer.set_service_info(@service, @app, @app_type) unless @tracer.services.include? @service
+    end
+
+    # Pass trace onto @tracer, but set default service options
+    # for this pin when doing so
+    #
+    #@overload trace(name, options = {})
+    # @param [String] name
+    # @param [Hash] options
+    #
+    # @return [Datadog::Span]
+    #
+    #@overload trace(name, options = {})
+    # @param [String] name
+    # @param [Hash] options
+    #
+    # @yield [Datadog::Span]
+    def trace(name, options = {})
+      options = {service: @service}.merge(options)
+      if block_given?
+        tracer.trace(name, options) do |span|
+          @tags.each { |k, v| span.set_tag(k, v) } unless @tags.empty?
+          yield(span)
+        end
+      else
+        tracer.trace(name, options)
+      end
     end
 
     def enabled?

@@ -39,6 +39,7 @@ EOS
   spec.add_development_dependency 'appraisal', '~> 2.1'
   spec.add_development_dependency 'typhoeus', '~> 0.7'
   spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'pry-stack_explorer'
   spec.add_development_dependency 'timecop'
   spec.add_development_dependency 'yard', '~> 0.9'
 end

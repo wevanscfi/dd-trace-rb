@@ -1,6 +1,7 @@
 require 'ddtrace/monkey'
 require 'ddtrace/pin'
 require 'ddtrace/tracer'
+require 'ddtrace/method_tracer'
 
 # \Datadog global namespace that includes all tracing functionality for Tracer and Span classes.
 module Datadog
@@ -53,9 +54,6 @@ if defined?(Rails::VERSION)
         initializer :datadog_config, before: :build_middleware_stack do |app|
           app.config.middleware.insert_before(
             0, Datadog::Contrib::Rack::TraceMiddleware, options
-          )
-          app.config.middleware.insert_before(
-            0, Datadog::Contrib::Queue::TraceMiddleware, options
           )
         end
       end
