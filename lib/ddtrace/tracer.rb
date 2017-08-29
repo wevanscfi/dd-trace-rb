@@ -175,8 +175,10 @@ module Datadog
       span = Span.new(self, name, options)
 
       # set up inheritance
-      parent = @buffer.get()
-      span.set_parent(parent)
+      unless options.key?(:parent) && options[:parent].nil?
+        parent = @buffer.get()
+        span.set_parent(parent) unless options.key?(:parent) && options[:parent].nil?
+      end
       @buffer.set(span)
 
       @tags.each { |k, v| span.set_tag(k, v) } unless @tags.empty?

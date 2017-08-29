@@ -82,6 +82,7 @@ module Datadog
 
           @datadog_pin.trace(
             @name,
+            parent: nil,
             resource: nil, # Keep out of resource traces
             span_type: 'upstream',
             start_time: upstream_started,
