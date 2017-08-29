@@ -11,8 +11,6 @@ module Datadog
     attr_accessor :hostname, :port
     attr_reader :traces_endpoint, :services_endpoint
 
-    ACTIVE = ENV['DD_SEND_METRICS'].freeze
-
     # seconds before the transport timeout
     TIMEOUT = 1
 
@@ -41,7 +39,7 @@ module Datadog
 
     # route the send to the right endpoint
     def send(endpoint, data)
-      return 204 unless ACTIVE
+      return 204 unless ENV['DD_SEND_METRICS']
       case endpoint
       when :services
         payload = @encoder.encode_services(data)

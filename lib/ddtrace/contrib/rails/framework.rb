@@ -3,6 +3,7 @@ require 'ddtrace/ext/app_types'
 
 require 'ddtrace/contrib/grape/endpoint'
 require 'ddtrace/contrib/rack/middlewares'
+require 'ddtrace/contrib/preprocess/middlewares'
 
 require 'ddtrace/contrib/rails/core_extensions'
 require 'ddtrace/contrib/rails/action_controller'
