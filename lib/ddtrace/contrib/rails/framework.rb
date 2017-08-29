@@ -2,7 +2,6 @@ require 'ddtrace/pin'
 require 'ddtrace/ext/app_types'
 
 require 'ddtrace/contrib/grape/endpoint'
-require 'ddtrace/contrib/queue/middlewares'
 require 'ddtrace/contrib/rack/middlewares'
 
 require 'ddtrace/contrib/rails/core_extensions'
